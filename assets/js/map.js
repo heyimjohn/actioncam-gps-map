@@ -6,7 +6,6 @@ function Map() {
 		directionsDisplay,
 		directionsService = new google.maps.DirectionsService(),
 		showMarkers = true,
-		k,
 		mapData = [];
 
 	pub.init = function() {
@@ -23,8 +22,6 @@ function Map() {
 	}
 
 	function getCoordinates() {
-		k = new Kalman();
-
 		$.getJSON('/coords', function(data) {
 			var marker,
 				markerPos,
@@ -123,23 +120,6 @@ function Map() {
 		}
 
 		log('We now have ' + waypoints.length + ' waypoints.');
-	}
-
-	function kalman(data) {
-		var check = 100;
-		for(var i=0; i<data.length; i++) {
-			k.filter(data[i].lat, data[i].lng);
-
-			if(i % check === 0 && i > 0) {
-				smoothData.push({
-					lat: k.nextX(),
-					lng: k.nextY()
-				});
-				i = i - 25;
-				check += 75;
-				k = new Kalman();
-			}
-		}
 	}
 
 	function knotsToMph(speed) {
