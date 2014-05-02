@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Actioncam GPS Mapper</title>
+	<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="assets/css/styles.css" />
+</head>
+<body>
+
+<!--<div class="mask"></div>-->
+
+<div class="wrapper">
+	<div class="upload-form">
+		<h1>Upload your Action Cam log</h1>
+		<p>This tool takes the log file generated from your Sony Action Cam (when you shoot a video) and recreates the route you took on Google Maps. You will get information such as speed, coordinates, altitude, time, etc. Enjoy!</p>
+		<form action="/" method="POST" enctype="multipart/form-data">
+			<a href="#" class="btn btn-primary" id="fakeBtn">Find & Upload</a>
+			<input type="file" id="logfile" name="logfile" class="hide" />
+			<!--<button type="submit">Upload</button>-->
+		</form>
+	</div>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="assets/js/home.js"></script>
+
+</body>
+</html>
