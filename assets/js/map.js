@@ -66,9 +66,14 @@ function Map() {
 			openedWindow;
 
 		for(var i=0, len=markers.length; i<len; i++) {
-			contentString = 'Speed: ' + knotsToMph(mapData[i].speed) + ' mph <br />';
+			contentString = 'Speed: ' + convertSpeed(mapData[i].speed, mapData[i].type) + ' mph <br />';
 			contentString += 'Lat: ' + mapData[i].lat + '<br />';
 			contentString += 'Lng: ' + mapData[i].lng;
+
+			if(mapData[i].altitude) {
+				contentString += '<br />Altitude: ' + metersToFeet(mapData[i].altitude) + 'ft';
+			}
+
 			infoWindow[i] = new google.maps.InfoWindow({
 			    content: contentString
 			});
@@ -122,8 +127,12 @@ function Map() {
 		log('We now have ' + waypoints.length + ' waypoints.');
 	}
 
-	function knotsToMph(speed) {
-		return Math.round(speed * 1.15077945);
+	function convertSpeed(speed, type) {
+		return type == 'actioncam' ? Math.round(speed * 1.15077945) : Math.round(speed * 2.23694);
+	}
+
+	function metersToFeet(alt) {
+		return Math.round(alt * 3.28084);
 	}
 
 	function log(msg) {

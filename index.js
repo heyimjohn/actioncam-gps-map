@@ -8,7 +8,8 @@ var express = require('express'),
 	app = express();
 
 var coords = [], /* Array that will hold coordinates for each image/video */
-	minVelocity = 40; /* Min velocity (knots) for coordinate to be recorded */
+	minVelocity = 40, /* Min velocity (knots) for coordinate to be recorded */
+	interval = 5;
 
 // Set view rendering engine
 app.engine('html', exphbs());
@@ -34,34 +35,56 @@ function showMap(req, res) {
 		saveTo = path.join(saveTo, path.basename(filename));
         file.pipe(fs.createWriteStream(saveTo));
 
-        /* Now lets read the log, which is a CSV file */
-        csv()
-        .from(saveTo, {comment: '@'})
-        .to.array(function(rows) {
-        	console.log('There are ' + rows.length + ' coordinates in this log.');
-        	coords = [];
-        	var lat, lon, 
-        		interval = 1,
-        		filteredData = rows.filter(filterGPSData);
+        if(mimetype === 'application/json') {
+        	fs.readFile(saveTo, 'utf-8', function(err, data) {
+        		data = JSON.parse(data);
+        		console.log('There are ' + data.length + ' coordinates in this log.');
 
-        	/* After reading CSV and transforming data into a giant array, loop through array and save coordinates */
-        	for(var i=0; i<filteredData.length; i++) {
-        		if(i % interval === 0) {
-	        		lat = filteredData[i][3] === 'N' ? filteredData[i][2] : filteredData[i][3];
-	        		lon = filteredData[i][5] === 'W' ? filteredData[i][4] : filteredData[i][5];
-	        		coords.push({
-	        			speed: filteredData[i][7],
-	        			lat: convertToLatLng(lat, 'lat'),
-	        			lng: convertToLatLng(lon, 'lng')
-	        		});
+        		for(var i=0; i<data.length; i++) {
+        			if(i % interval === 0) {
+	        			coords.push({
+		        			speed: data[i].speed,
+		        			lat: data[i].lat,
+		        			lng: data[i].lng,
+		        			altitude: data[i].alt,
+		        			type: 'iphone'
+		        		});
+		        	}
+        		}
+
+        		console.log('Only ' + coords.length + ' proccessed.');
+        		res.render('map.html');
+        	});
+        } else {
+	        /* Now lets read the log, which is a CSV file */
+	        csv()
+	        .from(saveTo, {comment: '@'})
+	        .to.array(function(rows) {
+	        	console.log('There are ' + rows.length + ' coordinates in this log.');
+	        	coords = [];
+	        	var lat, lon, 
+	        		filteredData = rows.filter(filterGPSData);
+
+	        	/* After reading CSV and transforming data into a giant array, loop through array and save coordinates */
+	        	for(var i=0; i<filteredData.length; i++) {
+	        		if(i % interval === 0) {
+		        		lat = filteredData[i][3] === 'N' ? filteredData[i][2] : filteredData[i][3];
+		        		lon = filteredData[i][5] === 'W' ? filteredData[i][4] : filteredData[i][5];
+		        		coords.push({
+		        			speed: filteredData[i][7],
+		        			lat: convertToLatLng(lat, 'lat'),
+		        			lng: convertToLatLng(lon, 'lng'),
+		        			type: 'actioncam'
+		        		});
+		        	}
 	        	}
-        	}
 
-        	console.log('Only ' + coords.length + ' proccessed.');
-        })
-        .on('end', function() {
-        	res.render('map.html');
-        });
+	        	console.log('Only ' + coords.length + ' proccessed.');
+	        })
+	        .on('end', function() {
+	        	res.render('map.html');
+	        });
+		}
 	});
 }
 
